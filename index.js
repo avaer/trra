@@ -15,8 +15,8 @@ class Chunk {
     return this.uint32Buffer;
   }
 
-  generate(generator) {
-    generator(this.x, this.z, this.uint32Buffer.buffer, this.uint32Buffer.byteOffset);
+  generate(generator, opts) {
+    generator(this.x, this.z, this.uint32Buffer.buffer, this.uint32Buffer.byteOffset, opts);
     this.dirty = true;
   }
 }
