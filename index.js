@@ -1,5 +1,5 @@
 const CHUNK_HEADER_SIZE = 2 * 4;
-const CHUNK_BUFFER_SIZE = 2 * 1024 * 1024;
+const CHUNK_BUFFER_SIZE = 1 * 1024 * 1024;
 const CHUNK_SIZE = CHUNK_HEADER_SIZE + CHUNK_BUFFER_SIZE;
 
 class Chunk {
@@ -34,7 +34,7 @@ class Trra {
       const x = chunkHeader[0];
       const z = chunkHeader[1];
       byteOffset += 2 * 4;
-      const chunkBuffer = new Uint32Array(buffer.buffer, byteOffset, CHUNK_BUFFER_SIZE/4);
+      const chunkBuffer = new Uint32Array(buffer.buffer, byteOffset, CHUNK_BUFFER_SIZE / 4);
       byteOffset += CHUNK_BUFFER_SIZE;
 
       const chunk = new Chunk(x, z, chunkBuffer);
