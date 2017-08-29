@@ -72,7 +72,7 @@ class Trra {
   }
 
   removeChunk(x, z) {
-    this.chunks.splice(this.chunks.findIndex(chunk => chunk.x === x && chunk.z === z), 1);
+    return this.chunks.splice(this.chunks.findIndex(chunk => chunk.x === x && chunk.z === z), 1)[0];
   }
 
   makeChunk(x, z) {
