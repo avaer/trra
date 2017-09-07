@@ -83,4 +83,6 @@ class Trra {
 }
 
 const trra = () => new Trra();
+trra.CHUNK_BUFFER_SIZE = CHUNK_BUFFER_SIZE;
+
 module.exports = trra;
