@@ -1,6 +1,10 @@
+const mod = require('mod-loop');
+
 const CHUNK_HEADER_SIZE = 2 * 4;
 const CHUNK_BUFFER_SIZE = 1 * 1024 * 1024;
 const CHUNK_SIZE = CHUNK_HEADER_SIZE + CHUNK_BUFFER_SIZE;
+
+const _getChunkIndex = (x, z) => mod(x, 65536) | mod(z, 65536) << 16;
 
 class Chunk {
   constructor(x = 0, z = 0, buffer = new Uint32Array(CHUNK_BUFFER_SIZE / 4)) {
@@ -23,7 +27,7 @@ class Chunk {
 
 class Trra {
   constructor() {
-    this.chunks = [];
+    this.chunks = {};
   }
 
   load(buffer) {
@@ -37,47 +41,51 @@ class Trra {
       const chunkBuffer = new Uint32Array(buffer.buffer, byteOffset, CHUNK_BUFFER_SIZE / 4);
       byteOffset += CHUNK_BUFFER_SIZE;
 
-      const chunk = new Chunk(x, z, chunkBuffer);
-      this.chunks.push(chunk);
+      this.chunks[_getChunkIndex(x, z)] = new Chunk(x, z, chunkBuffer);
     }
   }
 
   save(fn) {
     let byteOffset = 0;
 
-    for (let i = 0; i < this.chunks.length; i++) {
-      const chunk = this.chunks[i];
+    for (const index in this.chunks) {
+      const chunk = this.chunks[index];
 
-      if (chunk.dirty) {
-        fn(byteOffset, Int32Array.from([chunk.x, chunk.z]));
-        byteOffset += CHUNK_HEADER_SIZE;
-        fn(byteOffset, chunk.uint32Buffer);
-        byteOffset += CHUNK_BUFFER_SIZE;
+      if (chunk) {
+        if (chunk.dirty) {
+          fn(byteOffset, Int32Array.from([chunk.x, chunk.z]));
+          byteOffset += CHUNK_HEADER_SIZE;
+          fn(byteOffset, chunk.uint32Buffer);
+          byteOffset += CHUNK_BUFFER_SIZE;
 
-        chunk.dirty = false;
-      } else {
-        byteOffset += CHUNK_SIZE;
+          chunk.dirty = false;
+        } else {
+          byteOffset += CHUNK_SIZE;
+        }
       }
     }
   }
 
   getChunk(x, z) {
-    return this.chunks.find(chunk => chunk.x === x && chunk.z === z) || null;
+    return this.chunks[_getChunkIndex(x, z)];
   }
 
   addChunk(x, z, buffer) {
     const chunk = new Chunk(x, z, buffer);
-    this.chunks.push(chunk);
+    this.chunks[_getChunkIndex(x, z)] = chunk;
     return chunk;
   }
 
   removeChunk(x, z) {
-    return this.chunks.splice(this.chunks.findIndex(chunk => chunk.x === x && chunk.z === z), 1)[0];
+    const index = _getChunkIndex(x, z);
+    const oldChunk = this.chunks[index];
+    this.chunks[index] = null;
+    return oldChunk;
   }
 
   makeChunk(x, z) {
     const chunk = new Chunk(x, z);
-    this.chunks.push(chunk);
+    this.chunks[_getChunkIndex(x, z)] = chunk;
     return chunk;
   }
 }

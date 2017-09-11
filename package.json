@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/modulesio/trra/issues"
   },
-  "homepage": "https://github.com/modulesio/trra#readme"
+  "homepage": "https://github.com/modulesio/trra#readme",
+  "dependencies": {
+    "mod-loop": "0.0.2"
+  }
 }
